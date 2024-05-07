@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Add a Monthly Bill</h1>
+<form action = "" method = "post" novalidate>
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.name.label }}<br>
+        {{ form.name(size = 32) }}
+    </p>
+    <p>
+        {{ form.amount.label }}<br>
+        {{ form.amount(size = 8)}}
+    </p>
+    <p>
+        {{ form.dueDate.label }}<br>
+        {{ form.dueDate() }}
+    </p>
+    <p>{{ form.submit() }}</p>
+</form>
+
+{% endblock %}

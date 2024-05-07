@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+    <head>
+        <script src="../static/static.js"></script>
+        <title> Budget </title>
+    </head>
+    <body onload = "preLoad()">
+        <div>Budget App: 
+            <a href="{{ url_for('index') }}">Home</a> || 
+            <a href="{{ url_for('addOneTime') }}">Add One Timer</a> || 
+            <a href="{{ url_for('addMonthlyBill') }}">Add Monthly Bill</a> || 
+            <a href="{{ url_for('addWeeklyBill') }}">Add Weekly Bill</a> ||
+            <a href="{{ url_for('addIncome') }}">Add Income</a> || 
+            <a href="{{ url_for('addBill') }}">Add FreeForm Bill</a> 
+        </div>
+        <hr>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </body>
+</html>

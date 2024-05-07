@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Add a Bill</h1>
+    <form action = "" method = "post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.name.label }}<br>
+            {{ form.name(size = 32) }}
+        </p>
+        <p>
+            {{ form.amount.label }}<br>
+            {{ form.amount(size = 8)}}
+        </p>
+        <p>
+            {{ form.nextDue.label }}<br>
+            {{ form.nextDue() }}
+        </p>
+        <p> 
+            {{ form.monthInc.label }}<br>
+            {{ form.monthInc(size = 2)}}
+        </p>
+        <p>
+            {{ form.weekInc.label }}<br>
+            {{ form.weekInc(size = 2) }}
+        </p>
+        <p>
+            {{form.dayInc.label }}<br>
+            {{form.dayInc(size = 2)}}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
