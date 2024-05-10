@@ -18,16 +18,20 @@ def index():
         for bill in paidBills:
             bill.markPaid(database=db)
         db.session.commit()
+        if float(form['balance'])==0:
+            curBal = session['curBal']
+        else:
+            curBal = float(form['balance'])
         bills = db.session.query(Bill).order_by(Bill.nextDue).all()
-        getBalance(float(form['balance']),date(date.today().year+1,date.today().month,date.today().day),bills,session)
+        getBalance(curBal,date(date.today().year+1,date.today().month,date.today().day),bills,session)
         makePlots(session['dateList'],session['balList'])
         return redirect('/index')
     bills = db.session.query(Bill).order_by(Bill.nextDue).all()
     try:
-        return render_template('index.html', bills = bills,adjBal = session['adjBal'], min30 = session['min30'],
-                            min60=session['min60'],min90=session['min90'])
+        return render_template('index.html', bills = bills,curBal = session['curBal'], adjBal = session['adjBal'], min30 = session['min30'],
+                            min60=session['min60'],min90=session['min90'],dateList = session['dateList'], balList = session['balList'])
     except:
-        return render_template('index.html', bills = bills, adjBal = 0, min30=0, min60=0, min90=0)
+        return render_template('index.html', bills = bills, curBal = 0, adjBal = 0, min30=0, min60=0, min90=0)
 
 @app.route('/addMonthlyBill', methods = ['GET','POST'])
 def addMonthlyBill():
@@ -105,6 +109,7 @@ def getBalance(startBal, thruDate, bills,session):
     if len(bills)==0:
         session['dateList'] = [date.today()]
         session['balList'] = [startBal]
+        session['curBal']=startBal
         session['adjBal'] = startBal
         session['min30'] = 0
         session['min60'] = 0
@@ -124,6 +129,7 @@ def getBalance(startBal, thruDate, bills,session):
         currDate += timedelta(days=1)
     session['dateList'] = dateList
     session['balList'] = balList
+    session['curBal'] = startBal
     session['adjBal'] = round(balList[0],2)
     session['min30'] = round(min(balList[0:30]),2)
     session['min60'] = round(min(balList[30:60]),2)

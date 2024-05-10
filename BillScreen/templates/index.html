@@ -4,8 +4,8 @@
     <form action = "" method = "post" novalidate>
     <div style="display:flex">
         <div style = "width: 30%; display:flex; flex-direction:column; align-items:center">
+            <button type = "submit">Update</button>
             <p>Current Balance : <input name="balance" type="number" value="0" step=".01"></p>
-            <button type = "submit">Mark Bills Paid</button>
             {% for bill in bills %}
             <p><input type = "checkbox" id = {{bill.id}} name = {{bill.id}}>
             <label for = {{bill.id}}>{{bill.name}} | {{ -bill.amount}} | {{bill.nextDue}}</label>
@@ -16,17 +16,30 @@
         </form>
         <div style = "width: 30%; display:flex; flex-direction:column; align-items:center">
             <h2>Summary</h2>
+            <p><b>Current Balance: </b>{{curBal}}</p>
             <p><b>Adjusted Balance: </b>{{adjBal}}</p>
             <p><b>Next-30 Minimum: </b>{{min30}}</p>
             <p><b>30-60 Minimum: </b>{{min60}}</p>
             <p><b>60-90 Minimum: </b>{{min90}}</p>
-        </div>
-        <div style="width: 40%; display:flex; flex-direction:column; align-items:center">
             <input type="radio" name="img" id="choice1" onClick="changeIm('baseGraph');" style="margin: 0 auto" checked>
             <label for="choice1">Projected Balance over the next year</label>
             <input type="radio" name="img" id="choice2" onClick="changeIm('futureMinGraph');" style="margin: 0 auto">
             <label for="choice2">Minimum Future Projected Balance over the next year</label>
             <img id="forecastGraph" src = "../static/forecastImg.svg" width = "100%">
+        </div>
+        <div style="width: 40%; display:flex; flex-direction:column; align-items:center">
+            <table style="border:1px solid black">
+                <tr style="border:1px solid black">
+                    <th>Date</th>
+                    <th>Balance</th>
+                </tr>
+                {% for date in dateList %}
+                <tr>
+                    <td style="border:1px solid black">{{date}}</td>
+                    <td style="border:1px solid black">{{balList[loop.index0]}}</td>
+                </tr>
+                {% endfor %}
+            </table>
         </div>
     </div>
 {% endblock %}  
