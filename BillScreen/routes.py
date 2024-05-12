@@ -19,7 +19,11 @@ def index():
             bill.markPaid(database=db)
         db.session.commit()
         if float(form['balance'])==0:
-            curBal = session['curBal']
+            try:
+                curBal = session['curBal']
+            except:
+                curBal = 0
+                session['curBal']=0
         else:
             curBal = float(form['balance'])
         bills = db.session.query(Bill).order_by(Bill.nextDue).all()
@@ -29,7 +33,7 @@ def index():
     bills = db.session.query(Bill).order_by(Bill.nextDue).all()
     try:
         return render_template('index.html', bills = bills,curBal = session['curBal'], adjBal = session['adjBal'], min30 = session['min30'],
-                            min60=session['min60'],min90=session['min90'],dateList = session['dateList'], balList = session['balList'])
+                            min60=session['min60'],min90=session['min90'],tableDates = session['tableDates'], tableBals = session['tableBals'])
     except:
         return render_template('index.html', bills = bills, curBal = 0, adjBal = 0, min30=0, min60=0, min90=0)
 
@@ -109,8 +113,11 @@ def getBalance(startBal, thruDate, bills,session):
     if len(bills)==0:
         session['dateList'] = [date.today()]
         session['balList'] = [startBal]
-        session['curBal']=startBal
+        session['tableDates'] = [date.today().isoformat()]
+        session['tableBals'] = [startBal]
+        session['curBal'] = startBal
         session['adjBal'] = startBal
+        
         session['min30'] = 0
         session['min60'] = 0
         session['min90'] = 0
@@ -129,6 +136,8 @@ def getBalance(startBal, thruDate, bills,session):
         currDate += timedelta(days=1)
     session['dateList'] = dateList
     session['balList'] = balList
+    session['tableDates'] = [day.isoformat() for day in dateList[0:30]]
+    session['tableBals'] = balList[0:30]
     session['curBal'] = startBal
     session['adjBal'] = round(balList[0],2)
     session['min30'] = round(min(balList[0:30]),2)
@@ -137,9 +146,16 @@ def getBalance(startBal, thruDate, bills,session):
     return session
 
 def makePlots(dates,balances):
+    datalen=len(dates)
     fig1,ax1 = plt.subplots()
+    fig2,ax2 = plt.subplots()
     fig3,ax3 = plt.subplots()
+    fig4,ax4 = plt.subplots()
     ax1.plot(dates,balances)
-    ax3.plot(dates,[min(balances[i:]) for i in range(len(balances))])
+    ax2.plot(dates,[min(balances[i:]) for i in range(datalen)])
+    ax3.plot(dates[0:min(datalen,30)],balances[0:min(datalen,30)])
+    ax4.plot(dates[0:min(datalen,90)],balances[0:min(datalen,90)])
     fig1.savefig(Path.cwd() / "BillScreen" / "static" / "forecastImg.svg",format="svg")
-    fig3.savefig(Path.cwd() / "BillScreen" / "static" / "futureForecastImg.svg",format="svg")
+    fig2.savefig(Path.cwd() / "BillScreen" / "static" / "futureForecastImg.svg",format="svg")
+    fig3.savefig(Path.cwd() / "BillScreen" / "static" / "next30.svg",format="svg")
+    fig4.savefig(Path.cwd() / "BillScreen" / "static" / "next90.svg",format="svg")

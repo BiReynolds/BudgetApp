@@ -3,7 +3,7 @@
 {% block content %}
     <form action = "" method = "post" novalidate>
     <div style="display:flex">
-        <div style = "width: 30%; display:flex; flex-direction:column; align-items:center">
+        <div style = "width: 30%; display:flex; flex-direction:column; height: 80hv; overflow-y: scroll; align-items:center">
             <button type = "submit">Update</button>
             <p>Current Balance : <input name="balance" type="number" value="0" step=".01"></p>
             {% for bill in bills %}
@@ -14,32 +14,42 @@
             {% endfor %}
         </div>
         </form>
-        <div style = "width: 30%; display:flex; flex-direction:column; align-items:center">
+        {% if tableDates|length == 1 %}
+            <div style="width:70%; text-align: center;">
+                <h1>Looks like there are no bills or income yet!  Add some bills/income and press "Update" to make this more interesting...</h1>
+            </div>
+        {% else %}
+        <div style = "width: 40%; display:flex; flex-direction:column; align-items:center">
             <h2>Summary</h2>
             <p><b>Current Balance: </b>{{curBal}}</p>
             <p><b>Adjusted Balance: </b>{{adjBal}}</p>
             <p><b>Next-30 Minimum: </b>{{min30}}</p>
             <p><b>30-60 Minimum: </b>{{min60}}</p>
             <p><b>60-90 Minimum: </b>{{min90}}</p>
-            <input type="radio" name="img" id="choice1" onClick="changeIm('baseGraph');" style="margin: 0 auto" checked>
-            <label for="choice1">Projected Balance over the next year</label>
-            <input type="radio" name="img" id="choice2" onClick="changeIm('futureMinGraph');" style="margin: 0 auto">
-            <label for="choice2">Minimum Future Projected Balance over the next year</label>
-            <img id="forecastGraph" src = "../static/forecastImg.svg" width = "100%">
+            <select id="image-select">
+                <option value="next30Graph">Next 30 Days</option>
+                <option value="next90Graph">Next 90 Days</option>
+                <option value="baseGraph">Next Year</option>
+                <option value="futureMinGraph">Future Minimum Over Next Year</option>
+            </select>
+            <img id="forecastGraph" src = "../static/next30.svg" width = "90%">
         </div>
-        <div style="width: 40%; display:flex; flex-direction:column; align-items:center">
-            <table style="border:1px solid black">
-                <tr style="border:1px solid black">
-                    <th>Date</th>
-                    <th>Balance</th>
-                </tr>
-                {% for date in dateList %}
-                <tr>
-                    <td style="border:1px solid black">{{date}}</td>
-                    <td style="border:1px solid black">{{balList[loop.index0]}}</td>
-                </tr>
-                {% endfor %}
-            </table>
+        <div style="width:30%; height: 90vh; overflow-y: scroll; display:flex; flex-direction:column; align-items: left;">
+            <div style="height: 5%; align-self: center"><h2>Balance Table</h2></div>
+            <br>
+                <table style="border:1px solid black; height:80%; font-size:1.69vh" id="balTable">
+                    <tr style="border:1px solid black;">
+                        <th>Date</th>
+                        <th>Balance</th>
+                    </tr>
+                        {% for date in tableDates %}
+                        <tr>
+                            <td style="border:1px solid black">{{date}}</td>
+                            <td style="border:1px solid black">{{tableBals[loop.index0]}}</td>
+                        </tr>
+                        {% endfor %}
+                </table>
         </div>
+        {% endif %}
     </div>
-{% endblock %}  
+{% endblock %}
