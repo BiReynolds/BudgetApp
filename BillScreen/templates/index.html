@@ -9,7 +9,7 @@
             {% for bill in bills %}
             <p><input type = "checkbox" id = {{bill.id}} name = {{bill.id}}>
             <label for = {{bill.id}}>{{bill.name}} | {{ -bill.amount}} | {{bill.nextDue}}</label>
-            <a href="{{url_for('delete',id = bill.id)}}">Delete</a>
+            <a href="{{url_for('edit',id = bill.id)}}">Edit</a>
             </p>
             {% endfor %}
         </div>

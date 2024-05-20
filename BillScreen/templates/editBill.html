@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Edit Bill</h1>
+    <form action = "" method = "post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.name.label }}<br>
+            {{ form.name(size = 32) }}
+        </p>
+        <p>
+            {{ form.amount.label }}<br>
+            {{ form.amount(size = 8)}}
+        </p>
+        <p>
+            {{ form.nextDue.label }}<br>
+            {{ form.nextDue() }}
+        </p>
+        <p>Increment Type: {{ payType }} </p>
+        <p>{{ form.submit() }} || <a href="{{ url_for('delete',id = billId) }}"><button>Delete</button></a></p>
+    </form>
+{% endblock %}

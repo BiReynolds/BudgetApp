@@ -5,9 +5,12 @@ from flask import render_template, session, redirect, request, url_for
 import sqlalchemy as sa 
 import sqlalchemy.orm as so 
 from BillScreen import app 
-from BillScreen.forms import BillForm, MonthlyBillForm, WeeklyBillForm, IncomeForm, OneTimeBillForm
+from BillScreen.forms import BillForm, MonthlyBillForm, WeeklyBillForm, IncomeForm, OneTimeBillForm, EditBillForm
 from BillScreen.models import Bill
 from BillScreen import db 
+
+
+## Routes
 
 @app.route('/', methods = ['GET','POST'])
 @app.route('/index', methods = ['GET','POST'])
@@ -39,7 +42,7 @@ def index():
 
 @app.route('/addMonthlyBill', methods = ['GET','POST'])
 def addMonthlyBill():
-    form = MonthlyBillForm()    
+    form = MonthlyBillForm()
     if form.validate_on_submit():
         new_bill = Bill(name=form.name.data, amount=round(form.amount.data,2), nextDue = date(date.today().year,date.today().month,int(form.dueDay.data)),monthInc=1)
         db.session.add(new_bill)
@@ -62,11 +65,11 @@ def addIncome():
     form = IncomeForm()
     if form.validate_on_submit():
         if form.paySched.data == 'Weekly':
-            new_income = Bill(name=form.name.data, amount=-1*round(form.amount.data,2), nextDue=form.nextPaid.data, dayInc=7)
+            new_income = Bill(name=form.name.data, amount=-1*round(form.amount.data,2), nextDue=form.nextDue.data, dayInc=7)
         elif form.paySched.data == 'Biweekly':
-            new_income = Bill(name=form.name.data, amount=-1*round(form.amount.data,2), nextDue=form.nextPaid.data, dayInc=14)
+            new_income = Bill(name=form.name.data, amount=-1*round(form.amount.data,2), nextDue=form.nextDue.data, dayInc=14)
         elif form.paySched.data == 'Monthly':
-            new_income = Bill(name=form.name.data, amount=-1*round(form.amount.data,2), nextDue=form.nextPaid.data, monthInc = 1)
+            new_income = Bill(name=form.name.data, amount=-1*round(form.amount.data,2), nextDue=form.nextDue.data, monthInc = 1)
         db.session.add(new_income)
         db.session.commit()
         return redirect(url_for('index'))
@@ -92,10 +95,39 @@ def addBill():
         return redirect(url_for('index'))
     return render_template('addBill.html', form = form)
 
+@app.route('/edit/<id>',methods = ['GET','POST'])
+def edit(id):
+    editBill = db.session.query(Bill).where(Bill.id==id).first()
+    monthInc = editBill.monthInc
+    dayInc = editBill.dayInc
+    if monthInc < 0:
+        payType = "One Time"
+    elif monthInc == 0:
+        if dayInc == 7:
+            payType = "Weekly"
+        elif dayInc%7 == 0:
+            payType = f"Every {dayInc//7} Weeks"
+        else:
+            payType = f"Every {dayInc} Days"
+    elif monthInc == 1:
+        payType = "Monthly"
+    elif dayInc == 0:
+        payType = f"Every {monthInc} Months"
+    else:
+        payType = f"Every {monthInc} Months and {dayInc} Days"
+    form = EditBillForm(obj=editBill)
+    if form.validate_on_submit():
+        form.populate_obj(editBill)
+        db.session.commit()
+        return redirect(url_for('edit',id = editBill.id))
+    db.session.flush()
+    return render_template('editBill.html',form=form, payType=payType, billId=id)
+
+
 @app.route('/delete/<id>')
 def delete(id):
-    user = db.session.query(Bill).where(Bill.id==id).first()
-    db.session.delete(user)
+    bill = db.session.query(Bill).where(Bill.id==id).first()
+    db.session.delete(bill)
     db.session.commit()
     return redirect(url_for('index'))
 
@@ -108,6 +140,9 @@ def updateForecast():
     db.session.close()
     makePlots(dates,balances)
     return redirect(url_for('index'))
+
+
+## Helper Functions
 
 def getBalance(startBal, thruDate, bills,session):
     if len(bills)==0:

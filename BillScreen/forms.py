@@ -53,3 +53,9 @@ class IncomeForm(FlaskForm):
     nextPaid = DateField('Next Pay Date', validators = [DataRequired()])
     paySched = SelectField('Pay Schedule',choices = ['Weekly','Biweekly','Monthly'])
     submit = SubmitField('Add Income')
+
+class EditBillForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    amount = DecimalField('Amount', validators = [DataRequired()])
+    nextDue = DateField('Next Due / Paid', validators = [DataRequired()])
+    submit = SubmitField('Update')
